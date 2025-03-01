@@ -39,7 +39,7 @@ class JointStatePublisher(Node):
                 try:
                     data = self.serial_port.readline().decode('utf-8').strip()
                     self.get_logger().info(f"Received data: {data}")
-
+                    self.get_logger().info(f"{self.joint_state_msg.position}")
                     with self.lock:
                         self.data_buffer.append(data)
                 except UnicodeDecodeError as e:
@@ -50,12 +50,22 @@ class JointStatePublisher(Node):
     def process_uart_data(self, data):
         try:
             parts = data.split()
-            if len(parts) == 4:  # Adjust to match the number of joints you are sending.
-               joint_positions_degrees = [float(part) for part in parts]
-               joint_positions_radians = [(deg * math.pi / 180.0) for deg in joint_positions_degrees]
-               self.joint_state_msg.position = joint_positions_radians
+            joint_positions_degrees = []
+            for part in parts:
+                if part.startswith('a'):
+                    joint_positions_degrees.append(float(part.split(':')[1]))
+                elif part.startswith('b'):
+                    joint_positions_degrees.append(float(part.split(':')[1]))
+                elif part.startswith('c'):
+                    joint_positions_degrees.append(float(part.split(':')[1]))
+                elif part.startswith('d'):
+                    joint_positions_degrees.append(float(part.split(':')[1]))
+
+            if len(joint_positions_degrees) == 4:
+                joint_positions_radians = [(deg * math.pi / 180.0) for deg in joint_positions_degrees]
+                self.joint_state_msg.position = joint_positions_radians
             else:
-                self.get_logger().warn(f"Incorrect data format: {data}")
+                self.get_logger().warn(f"Incorrect joint data format: {data}")
 
         except ValueError as e:
             self.get_logger().error(f"Error parsing data: {e}")

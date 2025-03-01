@@ -21,7 +21,8 @@ setup(
     tests_require=['pytest'],
       entry_points={
         'console_scripts': [
-            'odometry_publisher_node = robot_node.odometry_publisher_node:main', #this line is very important.
+            'odometry_publisher_node = robot_node.odometry_publisher_node:main', 
+            'joint_state_publisher = robot_node.joint_state_publisher:main', 
         ],
     },
 )

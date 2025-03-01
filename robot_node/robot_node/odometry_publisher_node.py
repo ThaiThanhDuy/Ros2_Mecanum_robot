@@ -8,12 +8,17 @@ import serial
 import math
 from collections import deque
 import threading
-
+from sensor_msgs.msg import JointState
 class OdometryPublisherNode(Node):
     def __init__(self):
         super().__init__('odometry_publisher_node')
         self.odom_pub = self.create_publisher(Odometry, 'odom', 10)
-        self.tf_broadcaster = TransformBroadcaster(self)
+     
+        self.publisher_ = self.create_publisher(JointState, 'joint_states', 10)
+
+        self.joint_state_msg = JointState()
+        self.joint_state_msg.name = ['left_wheel_joint_1', 'right_wheel_joint_1', 'left_wheel_joint_2', 'right_wheel_joint_2']
+        self.joint_state_msg.position = [0.0, 0.0, 0.0, 0.0]
 
         self.x = 0.0
         self.y = 0.0
@@ -69,7 +74,9 @@ class OdometryPublisherNode(Node):
         self.odom_pub.publish(odom)
 
      
-     
+        self.joint_state_msg.header.stamp = self.get_clock().now().to_msg()
+        self.publisher_.publish(self.joint_state_msg)
+
       
 
     def read_uart(self):
@@ -103,6 +110,23 @@ class OdometryPublisherNode(Node):
 
             yaw_radians = (yaw % 360) * (math.pi / 180)
             self.orientation = yaw_radians
+            
+            joint_positions_degrees = []
+            for part in parts:
+                if part.startswith('a'):
+                    joint_positions_degrees.append(float(part.split(':')[1]))
+                elif part.startswith('b'):
+                    joint_positions_degrees.append(float(part.split(':')[1]))
+                elif part.startswith('c'):
+                    joint_positions_degrees.append(float(part.split(':')[1]))
+                elif part.startswith('d'):
+                    joint_positions_degrees.append(float(part.split(':')[1]))
+
+            if len(joint_positions_degrees) == 4:
+                joint_positions_radians = [(deg * math.pi / 180.0) for deg in joint_positions_degrees]
+                self.joint_state_msg.position = joint_positions_radians
+            else:
+                self.get_logger().warn(f"Incorrect joint data format: {data}")
 
         except ValueError as e:
             self.get_logger().error(f"Error parsing data: {e}")
