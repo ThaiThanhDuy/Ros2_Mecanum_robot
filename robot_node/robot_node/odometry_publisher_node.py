@@ -13,7 +13,7 @@ class OdometryPublisherNode(Node):
     def __init__(self):
         super().__init__('odometry_publisher_node')
         self.odom_pub = self.create_publisher(Odometry, 'odom', 10)
-     
+        self.tf_broadcaster = TransformBroadcaster(self)
         self.publisher_ = self.create_publisher(JointState, 'joint_states', 10)
 
         self.joint_state_msg = JointState()
@@ -73,7 +73,16 @@ class OdometryPublisherNode(Node):
 
         self.odom_pub.publish(odom)
 
-     
+        t = TransformStamped()
+        t.header.stamp = current_time.to_msg()
+        t.header.frame_id = 'odom'
+        t.child_frame_id = 'base_link'
+        t.transform.translation.x = self.x
+        t.transform.translation.y = self.y
+        t.transform.translation.z = 0.0
+        t.transform.rotation = q
+
+        self.tf_broadcaster.sendTransform(t)
         self.joint_state_msg.header.stamp = self.get_clock().now().to_msg()
         self.publisher_.publish(self.joint_state_msg)
 

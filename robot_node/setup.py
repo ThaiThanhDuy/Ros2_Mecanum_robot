@@ -23,6 +23,7 @@ setup(
         'console_scripts': [
             'odometry_publisher_node = robot_node.odometry_publisher_node:main', 
             'joint_state_publisher = robot_node.joint_state_publisher:main', 
+            'cml_vel_node = robot_node.cml_vel_node:main', 
         ],
     },
 )
