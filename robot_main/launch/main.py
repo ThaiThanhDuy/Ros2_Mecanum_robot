@@ -8,12 +8,15 @@ def generate_launch_description():
         
        
 
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(['src/robot_main/launch/launch.py']),
-        ),
-      
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(['src/robot_model/launch/rsp.launch.py']),
-        ),
      
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(['src/robot_main/launch/rplidar.py']), # lidar
+        ),
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(['src/robot_description/launch/rsp.launch.py']), #run udrf
+        ),
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(['src/robot_main/launch/launch.py']), #run rviz
+        ),
+
     ])

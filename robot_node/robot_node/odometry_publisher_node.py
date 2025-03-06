@@ -14,6 +14,7 @@ class OdometryPublisherNode(Node):
         super().__init__('odometry_publisher_node')
         self.odom_pub = self.create_publisher(Odometry, 'odom', 10)
         self.tf_broadcaster = TransformBroadcaster(self)
+       
         self.publisher_ = self.create_publisher(JointState, 'joint_states', 10)
 
         self.joint_state_msg = JointState()
